@@ -37,8 +37,21 @@ class ResumeprintPlugin(
         self._logger.info("Thread")
         self._logger.info(self.recovery_data)
 
-        disallowed = ["G0 ", "G1 ", "G2 ", "G3 ", "G4 ", "G29", "M117", "M300"]
+        disallowed = [
+            "G0 ",
+            "G1 ",
+            "G2 ",
+            "G3 ",
+            "G4 ",
+            "G29",
+            "M117",
+            "M300",
+            "M600",
+            "M6001",
+        ]
         moves = ["G0 ", "G1 ", "G2 ", "G3 ", "G4 "]
+        lastZLine = ""
+        lastFRLine = ""
 
         if origin != "local":
             self._logger.info("Origin != local => {}".format(origin))
@@ -88,10 +101,15 @@ class ResumeprintPlugin(
                 if skip:
                     for d in moves:
                         if line.startswith(d):
-                            if " Z" in line or " F" in line:
-                                skip = False
+                            if " Z" in line:
                                 line = re.sub(";.+", "", line)
-                                line = re.sub(" [^ZF][0-9\.]+", "", line)
+                                line = re.sub(" [^ZF]\-?[0-9\.]+", "", line)
+                                lastZLine = line
+                                break
+                            if " F" in line:
+                                line = re.sub(";.+", "", line)
+                                line = re.sub(" [^F]\-?[0-9\.]+", "", line)
+                                lastFRLine = line
                                 break
 
                 if skip:
@@ -99,6 +117,14 @@ class ResumeprintPlugin(
 
                 self._logger.info("line[{}]@{}: {}".format(lineNum, curr_pos, line))
                 self._printer.commands("{}".format(line))
+
+        if len(lastFRLine):
+            self._logger.info("lastFRLine: {}".format(lastFRLine))
+            self._printer.commands("{}".format(lastFRLine))
+
+        if len(lastZLine):
+            self._logger.info("lastZLine: {}".format(lastZLine))
+            self._printer.commands("{}".format(lastZLine))
 
         # self._printer.commands("M117 {}".format(message))
         self._logger.info(
