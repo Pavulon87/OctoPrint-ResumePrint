@@ -48,8 +48,10 @@ class ResumeprintPlugin(
             "M300",
             "M600",
             "M6001",
+            "@OCTOLAPSE",
         ]
         moves = ["G0 ", "G1 ", "G2 ", "G3 ", "G4 "]
+        lastFANLine = ""
         lastZLine = ""
         lastFRLine = ""
 
@@ -111,12 +113,23 @@ class ResumeprintPlugin(
                                 line = re.sub(" [^F]\-?[0-9\.]+", "", line)
                                 lastFRLine = line
                                 break
+                else:
+                    if line.startswith("M106") or line.startswith("M107"):
+                        lastFANLine = line
+                        skip = True
 
                 if skip:
                     continue
 
+                if len(line) <= 2:
+                    continue
+
                 self._logger.info("line[{}]@{}: {}".format(lineNum, curr_pos, line))
                 self._printer.commands("{}".format(line))
+
+        if len(lastFANLine):
+            self._logger.info("lastFANLine: {}".format(lastFANLine))
+            self._printer.commands("{}".format(lastFANLine))
 
         if len(lastFRLine):
             self._logger.info("lastFRLine: {}".format(lastFRLine))
