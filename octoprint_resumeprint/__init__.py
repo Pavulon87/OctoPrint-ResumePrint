@@ -1,6 +1,7 @@
 # coding=utf-8
 from __future__ import absolute_import
-from tkinter.tix import Tree
+
+# from tkinter.tix import Tree
 
 import octoprint.plugin
 from octoprint.filemanager import FileDestinations
@@ -51,6 +52,7 @@ class ResumeprintPlugin(
             "@OCTOLAPSE",
         ]
         moves = ["G0 ", "G1 ", "G2 ", "G3 ", "G4 "]
+        good_moves = ["G0 ", "G1 "]
         lastFANLine = ""
         lastZLine = ""
         lastFRLine = ""
@@ -62,6 +64,7 @@ class ResumeprintPlugin(
         gcode_filename = self._file_manager.path_on_disk("local", path)
         self._logger.info("gcode_filename: {}".format(gcode_filename))
         curr_pos = 0
+        good_pos = 0
         lineNum = 0
         breakLoop = False
 
@@ -113,6 +116,9 @@ class ResumeprintPlugin(
                                 line = re.sub(" [^F]\-?[0-9\.]+", "", line)
                                 lastFRLine = line
                                 break
+                    for d in good_moves:
+                        if line.startswith(d):
+                            good_pos = curr_pos - tmplen
                 else:
                     if line.startswith("M106") or line.startswith("M107"):
                         lastFANLine = line
@@ -141,8 +147,8 @@ class ResumeprintPlugin(
 
         # self._printer.commands("M117 {}".format(message))
         self._logger.info(
-            "Thread finished. Starting print of file {} at pos {}, curr_pos {}".format(
-                gcode_filename, pos, curr_pos
+            "Thread finished. Starting print of file {} at pos {}, curr_pos {}, good_pos {}".format(
+                gcode_filename, pos, curr_pos, good_pos
             )
         )
 
