@@ -154,7 +154,7 @@ class ResumeprintPlugin(
 
         # self._printer.select_file(path, False, printAfterSelect = True, user=None, pos=curr_pos)
         self._printer.select_file(path, False, printAfterSelect=False)
-        self._printer.start_print(pos=curr_pos)
+        self._printer.start_print(pos=good_pos)
 
     def is_file_available(self):
         return os.path.isfile(self._recovery_file)
