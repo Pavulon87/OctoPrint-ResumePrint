@@ -16,16 +16,9 @@ $(function () {
     self.access = parameters[3];
     self.PrinterStateViewModel = parameters[4];
 
-    //self.resumeLastPrint = ko.observable("");
-
     self.PrinterStateViewModel.resumeLastPrint = function () {
-      // console.log("Translating file "+ data.path);
       self.resumeLastPrint();
     };
-
-    // assign the injected parameters, e.g.:
-    // self.loginStateViewModel = parameters[0];
-    // self.settingsViewModel = parameters[1];
 
     // TODO: Implement your plugin's view model here.
 
@@ -47,7 +40,7 @@ $(function () {
         type: "POST",
         dataType: "json",
         data: JSON.stringify({
-          command: "resume",
+          command: "resumeprint",
         }),
         contentType: "application/json; charset=UTF-8",
         error: function error(jqXHR, textStatus) {

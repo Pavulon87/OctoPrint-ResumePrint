@@ -172,7 +172,7 @@ class ResumeprintPlugin(
         return dict(resume=[])
 
     def on_api_command(self, command, data):
-        if command == "resume":
+        if command == "resumeprint":
             self._logger.info("resume print called")
 
             try:
@@ -215,7 +215,24 @@ class ResumeprintPlugin(
                     "Something was wrong with processing the recovery data"
                 )
 
-        self._logger.info("TESTING command: {}".format(command))
+    def hook_action(self, comm, line, command, *args, **kwargs):
+        
+        if command == None:
+            return
+
+        else:
+            if ";" in command:
+                command = command.split(';')[0]
+                command = command.strip()
+            if command != "resumeprint":
+                return (None,)
+        
+        
+        self._logger.info("Resume command received: 'action:%s'" % (command))
+
+        self.on_api_command("resumeprint", [])
+        
+        return (None,)
 
     def on_api_get(self, request):
         return jsonify(wrong="method")
@@ -268,5 +285,6 @@ def __plugin_load__():
 
     global __plugin_hooks__
     __plugin_hooks__ = {
-        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information
+        "octoprint.plugin.softwareupdate.check_config": __plugin_implementation__.get_update_information,
+        "octoprint.comm.protocol.action": __plugin_implementation__.hook_action, 
     }
