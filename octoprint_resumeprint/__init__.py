@@ -169,7 +169,7 @@ class ResumeprintPlugin(
     ##~~ AssetPlugin mixin
 
     def get_api_commands(self):
-        return dict(resume=[])
+        return dict(resumeprint=[])
 
     def on_api_command(self, command, data):
         if command == "resumeprint":
